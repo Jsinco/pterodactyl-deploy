@@ -1,14 +1,13 @@
 plugins {
     `java-gradle-plugin`
     `maven-publish`
-    `signing`
     kotlin("jvm") version "2.0.21"
     id("com.gradle.plugin-publish") version "1.2.1"
     id("com.gradleup.shadow") version "9.0.0-beta9"
 }
 
 group = "dev.jsinco.pterodactyldeploy"
-version = "1.0-SNAPSHOT"
+version = "1.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -17,7 +16,6 @@ repositories {
 
 dependencies {
     compileOnly(gradleApi())
-    testImplementation(kotlin("test"))
     implementation("com.mattmalec:Pterodactyl4J:2.BETA_142")
 }
 
@@ -45,8 +43,7 @@ gradlePlugin {
 tasks {
     shadowJar {
         dependencies {
-            exclude("org.gradle.api")
-            include(dependency("com.mattmalec:Pterodactyl4J:2.BETA_142"))
+
         }
 
         archiveClassifier.set("")
@@ -62,5 +59,32 @@ tasks {
 
     test {
         useJUnitPlatform()
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "jsinco-repo"
+            url = uri("https://repo.jsinco.dev/releases")
+            credentials(PasswordCredentials::class) {
+                // get from environment
+                username = System.getenv("repo_username")
+                password = System.getenv("repo_secret")
+            }
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+        }
+    }
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = project.group.toString()
+            //artifactId = project.name
+            version = project.version.toString()
+            artifact(tasks.shadowJar.get().archiveFile) {
+                builtBy(tasks.shadowJar)
+            }
+        }
     }
 }
