@@ -10,14 +10,20 @@ open class ClearRunway(
     var pteroClient: PteroClient? = null
     var serverId: String? = null
 
-    var clearRemoteDirectories: List<String>? = null
-    var removeRemoteFiles: List<String>? = null
+    var clearRemoteDirectories: MutableList<String>? = mutableListOf()
+    var removeRemoteDirectories: MutableList<String>? = mutableListOf()
+    var removeRemoteFiles: MutableList<String>? = mutableListOf()
 
 
     override fun action() {
         val psi = PterodactylServerInstance(project, pteroClient ?: return, serverId ?: return)
 
         clearRemoteDirectories?.forEach {
+            val directory = psi.getRemoteDirectory(it)
+            directory?.deleteFiles()?.execute()
+        }
+
+        removeRemoteDirectories?.forEach {
             val directory = psi.getRemoteDirectory(it)
             directory?.delete()?.execute()
         }
