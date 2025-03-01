@@ -25,15 +25,17 @@ open class DropIn(
             project.logger.error("Remote directory $deployDirectory not found")
         }
 
-        val fileUpload = remoteDir.upload()
-        uploadFiles?.forEach { file ->
-            if (!file.exists()) {
-                project.logger.error("File ${file.absolutePath} does not exist!")
-                return@forEach
-            }
-            fileUpload.addFile(file)
-        }
-        fileUpload.execute()
+       if (uploadFiles?.isNotEmpty() == true) {
+           val fileUpload = remoteDir.upload()
+           uploadFiles!!.forEach { file ->
+               if (!file.exists()) {
+                   project.logger.error("File ${file.absolutePath} does not exist!")
+                   return@forEach
+               }
+               fileUpload.addFile(file)
+           }
+           fileUpload.execute()
+       }
 
         for (localDir in uploadDirectory ?: emptyList()) {
             uploadLocalDirectory(localDir, psi)
