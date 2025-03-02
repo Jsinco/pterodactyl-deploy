@@ -14,7 +14,7 @@ open class DropIn(
     var deployDirectory: String? = null // Remote directory to deploy to
     var deployCommands: MutableList<String>? = mutableListOf() // Commands to run after deploying the files
 
-    var uploadDirectory: MutableList<Path>? = mutableListOf() // Local directories to upload
+    var uploadDirectories: MutableList<Path>? = mutableListOf() // Local directories to upload
     var uploadFiles: MutableList<File>? = mutableListOf() // Local files to upload
 
 
@@ -37,7 +37,7 @@ open class DropIn(
            fileUpload.execute()
        }
 
-        for (localDir in uploadDirectory ?: emptyList()) {
+        for (localDir in uploadDirectories ?: emptyList()) {
             uploadLocalDirectory(localDir, psi)
         }
 

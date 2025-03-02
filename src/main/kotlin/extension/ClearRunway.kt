@@ -19,13 +19,20 @@ open class ClearRunway(
         val psi = PterodactylServerInstance(project, pteroClient ?: return, serverId ?: return)
 
         clearRemoteDirectories?.forEach {
-            val directory = psi.getRemoteDirectory(it)
-            directory?.deleteFiles()?.execute()
+            val directory = psi.getRemoteDirectory(it) ?: return@forEach
+            if (directory.files.isEmpty()) {
+                return@forEach
+            }
+
+            // API doesnt let me pass in a list. Only one file + a varargs....
+            val singleFile = directory.files[0]
+            val restOfFiles = directory.files.drop(1).toTypedArray()
+            directory.deleteFiles().addFiles(singleFile, *restOfFiles)?.execute()
         }
 
         removeRemoteDirectories?.forEach {
-            val directory = psi.getRemoteDirectory(it)
-            directory?.delete()?.execute()
+            val directory = psi.getRemoteDirectory(it) ?: return@forEach
+            psi.clientServer.fileManager.delete().addFiles(directory).execute()
         }
 
         removeRemoteFiles?.forEach {

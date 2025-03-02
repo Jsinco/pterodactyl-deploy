@@ -4,6 +4,7 @@ import com.mattmalec.pterodactyl4j.client.entities.ClientServer
 import com.mattmalec.pterodactyl4j.client.entities.Directory
 import com.mattmalec.pterodactyl4j.client.entities.File
 import com.mattmalec.pterodactyl4j.client.entities.PteroClient
+import com.mattmalec.pterodactyl4j.exceptions.ServerException
 import org.gradle.api.Project
 
 class PterodactylServerInstance(val project: Project, val pteroClient: PteroClient, serverId: String) {
@@ -19,9 +20,20 @@ class PterodactylServerInstance(val project: Project, val pteroClient: PteroClie
         return this.getRemoteDirectory("${rootDir ?: ""}$directory")!!
     }
 
+    fun getMutableRemoteDirectory(directory: String): Directory? {
+        return clientServer.retrieveDirectory(
+            clientServer.retrieveDirectory()?.execute(),
+            this.getRemoteDirectory(directory)
+        ).execute()
+    }
+
     fun getRemoteDirectory(directory: String): Directory? {
-        println("Retrieving directory $directory")
-        return clientServer.retrieveDirectory(directory).execute()
+        return try {
+            clientServer.retrieveDirectory(directory).execute()
+        } catch (e: ServerException) {
+            // Directory not found
+            null
+        }
     }
 
     fun getRemoteFile(directory: String, file: String): File? {

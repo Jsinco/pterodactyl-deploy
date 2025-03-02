@@ -1,21 +1,33 @@
 package dev.jsinco.pterodactyldeploy
 
-import dev.jsinco.pterodactyldeploy.extension.Bearer
+import com.mattmalec.pterodactyl4j.PteroBuilder
+import com.mattmalec.pterodactyl4j.client.entities.PteroClient
 import dev.jsinco.pterodactyldeploy.extension.ClearRunway
 import dev.jsinco.pterodactyldeploy.extension.DropIn
 import org.gradle.api.Action
+import org.gradle.api.DefaultTask
 import org.gradle.api.Project
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
+import javax.inject.Inject
 
-open class PteroDeploy(
-    private val project: Project
-) {
+open class PteroDeploy : DefaultTask() {
 
-    val bearer: Bearer = Bearer()
+    @Input
+    var url: String? = null
+    @Input
+    var apiKey: String? = null
+    @Input
+    var serverId: String? = null
+    @Internal
+    var pteroClient: PteroClient? = null
+    @Internal
     val dropIn: DropIn = DropIn(project)
+    @Internal
     val clearRunway: ClearRunway = ClearRunway(project)
 
-    fun bearer(action: Action<in Bearer>) {
-        action.execute(bearer)
+    init {
+        group = "pterodactylDeploy"
     }
 
     fun dropIn(action: Action<in DropIn>) {
@@ -24,5 +36,16 @@ open class PteroDeploy(
 
     fun clearRunway(action: Action<in ClearRunway>) {
         action.execute(clearRunway)
+    }
+
+
+    fun instantiateClient() {
+        if (url == null || apiKey == null) {
+            throw IllegalArgumentException("url and apiKey must be set")
+        }
+        pteroClient = PteroBuilder.createClient(url, apiKey)
+        if (pteroClient == null) {
+            throw IllegalArgumentException("Failed to instantiate PteroClient")
+        }
     }
 }
