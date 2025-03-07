@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "dev.jsinco.pterodactyldeploy"
-version = "1.14-SNAPSHOT"
+version = "1.15-SNAPSHOT"
 
 repositories {
     mavenCentral()

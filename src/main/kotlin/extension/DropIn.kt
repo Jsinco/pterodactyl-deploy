@@ -37,8 +37,10 @@ open class DropIn(
            fileUpload.execute()
        }
 
-        for (localDir in uploadDirectories ?: emptyList()) {
-            uploadLocalDirectory(localDir, psi)
+        if (uploadDirectories?.isNotEmpty() == true) {
+            for (localDir in uploadDirectories!!) {
+                uploadLocalDirectory(localDir, psi)
+            }
         }
 
         deployCommands?.forEach { command ->
